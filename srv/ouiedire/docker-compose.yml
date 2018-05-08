@@ -7,37 +7,37 @@ networks:
   proxy:
     external:
       name: proxy_proxy
-  net.ouiedire.www:
+  ouiedire:
 
 services:
-  net.ouiedire.www_apache:
+  ouiedire_apache:
     build:
-      context: ../../../${DP_DOMAIN}/src/net.ouiedire.www
+      context: ../../../${DP_DOMAIN}/src/ouiedire
       dockerfile: Dockerfile.apache
       args:
         PACKAGES_DEV: ${DP_PACKAGES_DEV-rsync vim} rsync ${PACKAGES_DEV-}
         GITHUB_OAUTH_TOKEN: ${GITHUB_OAUTH_TOKEN-""}
     environment:
       ABT_USER: developer-portal
-    image: registry.developer-portal.test/net.ouiedire.www/php-5.6.36-apache-jessie:${DP_DOCKER_IMAGE_TAG-latest}
+    image: registry.developer-portal.test/ouiedire/php-5.6.36-apache-jessie:${DP_DOCKER_IMAGE_TAG-latest}
     labels:
       com.aramisauto.developer-portal.default: "true"
       com.aramisauto.developer-portal.shell: /bin/bash
       com.aramisauto.developer-portal.logs: "" # https://github.com/ARAMISAUTO/developer-portal/blob/master/README.md#service-logs
       com.aramisauto.developer-portal.username: app
-      com.dnsdock.alias: net.ouiedire.www.${DP_DOMAIN},apache.net.ouiedire.www.${DP_DOMAIN}
+      com.dnsdock.alias: ouiedire.${DP_DOMAIN},apache.ouiedire.${DP_DOMAIN}
       com.dnsdock.ip_addr: "172.28.1.1"
       traefik.enable: "true"
-      traefik.backend: net.ouiedire.www_apache
-      traefik.frontend.rule: "Host:net.ouiedire.www.${DP_DOMAIN},apache.net.ouiedire.www.${DP_DOMAIN}"
+      traefik.backend: ouiedire_apache
+      traefik.frontend.rule: "Host:ouiedire.${DP_DOMAIN},apache.ouiedire.${DP_DOMAIN}"
       traefik.docker.network: proxy_proxy
     networks:
       - dbgpproxy
       - proxy
-      - net.ouiedire.www
+      - ouiedire
     volumes:
       - type: bind
-        source: ../../src/net.ouiedire.www
+        source: ../../src/ouiedire
         target: /mnt/app
       - ./etc/apache.conf:/etc/apache2/sites-available/000-default.conf
       - ./etc/php.apache.ini:/usr/local/etc/php/php.ini

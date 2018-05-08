@@ -1,0 +1,13 @@
+site_name: "Developer Portal : incongru.test"
+theme:
+  name: 'material'
+markdown_extensions:
+  - admonition
+  - codehilite
+plugins:
+  - awesome-pages
+  - search
+repo_name: GitHub
+repo_url: 
+edit_uri: edit/master/docs/fr/docs
+strict: true

@@ -1,0 +1,74 @@
+version: '3.4'
+
+networks:
+  dbgpproxy:
+    external:
+      name: dbgpproxy_dbgpproxy
+  musiquesincongrues:
+    external:
+      name: musiquesincongrues_musiquesincongrues
+  proxy:
+    external:
+      name: proxy_proxy
+  vanillaminer:
+
+services:
+  vanillaminer_apache:
+    build:
+      context: ../../../${DP_DOMAIN}/src/vanillaminer
+      dockerfile: Dockerfile.apache
+      args:
+        PACKAGES_DEV: ${DP_PACKAGES_DEV-rsync vim} rsync ${PACKAGES_DEV-}
+        GITHUB_OAUTH_TOKEN: ${GITHUB_OAUTH_TOKEN-""}
+    depends_on:
+      - vanillaminer_solr
+    image: registry.developer-portal.test/vanillaminer/php-5.6.36-apache-jessie:${DP_DOCKER_IMAGE_TAG-latest}
+    labels:
+      com.aramisauto.developer-portal.default: "true"
+      com.aramisauto.developer-portal.shell: /bin/bash
+      com.aramisauto.developer-portal.logs: "" # https://github.com/ARAMISAUTO/developer-portal/blob/master/README.md#service-logs
+      com.aramisauto.developer-portal.username: app
+      com.dnsdock.alias: vanillaminer.${DP_DOMAIN},apache.vanillaminer.${DP_DOMAIN}
+      com.dnsdock.ip_addr: "172.28.1.1"
+      traefik.enable: "true"
+      traefik.backend: vanillaminer_apache
+      traefik.frontend.rule: "Host:vanillaminer.${DP_DOMAIN},apache.vanillaminer.${DP_DOMAIN}"
+      traefik.docker.network: proxy_proxy
+    networks:
+      - dbgpproxy
+      - proxy
+      - vanillaminer
+    volumes:
+      - type: bind
+        source: ../../src/vanillaminer
+        target: /mnt/app
+      - ./etc/apache.conf:/etc/apache2/sites-available/000-default.conf
+      - ./etc/symfony/databases.yml:/mnt/app/config/databases.yml
+      - ./etc/symfony/index.php:/mnt/app/web/index.php
+      - ./etc/symfony/search.yml:/mnt/app/config/search.yml
+      - ./etc/php.apache.ini:/usr/local/etc/php/php.ini
+      - ~/.composer:/home/app/.composer
+      - ~/.ssh:/home/app/.ssh
+    working_dir: /mnt/app
+
+  vanillaminer_solr:
+    environment:
+      - "SOLR_VERSION=1.4.0"
+    image: sebstinkeste/solr-1.4:jre6
+    networks:
+      - musiquesincongrues
+      - proxy
+      - vanillaminer
+    labels:
+      com.dnsdock.alias: solr.vanillaminer.${DP_DOMAIN}
+      com.dnsdock.ip_addr: "172.28.1.1"
+      traefik.enable: "true"
+      traefik.backend: vanillaminer_solr
+      traefik.port: "8983"
+      traefik.frontend.rule: "Host:solr.vanillaminer.${DP_DOMAIN}"
+      traefik.docker.network: proxy_proxy
+    volumes:
+      - ./etc/solr:/usr/local/tomcat/solr/solr/conf
+
+volumes:
+  developer-portal_solr: ~

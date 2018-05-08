@@ -1,0 +1,68 @@
+version: '3.4'
+
+networks:
+  dbgpproxy:
+    external:
+      name: dbgpproxy_dbgpproxy
+  proxy:
+    external:
+      name: proxy_proxy
+  musiquesincongrues:
+
+services:
+  musiquesincongrues_apache:
+    build:
+      context: ../../../${DP_DOMAIN}/src/musiquesincongrues
+      dockerfile: Dockerfile.apache
+      args:
+        PACKAGES_DEV: ${DP_PACKAGES_DEV-rsync vim} rsync ${PACKAGES_DEV-}
+        GITHUB_OAUTH_TOKEN: ${GITHUB_OAUTH_TOKEN-""}
+    depends_on:
+      - musiquesincongrues_mysql_asaph
+      - musiquesincongrues_mysql_vanilla
+    image: registry.developer-portal.test/musiquesincongrues/php-5.6.36-apache-jessie:${DP_DOCKER_IMAGE_TAG-latest}
+    labels:
+      com.aramisauto.developer-portal.default: "true"
+      com.aramisauto.developer-portal.shell: /bin/bash
+      com.aramisauto.developer-portal.logs: "" # https://github.com/ARAMISAUTO/developer-portal/blob/master/README.md#service-logs
+      com.aramisauto.developer-portal.username: app
+      com.dnsdock.alias: musiquesincongrues.${DP_DOMAIN},apache.musiquesincongrues.${DP_DOMAIN}
+      com.dnsdock.ip_addr: "172.28.1.1"
+      traefik.enable: "true"
+      traefik.backend: musiquesincongrues_apache
+      traefik.frontend.rule: "Host:musiquesincongrues.${DP_DOMAIN},apache.musiquesincongrues.${DP_DOMAIN}"
+      traefik.docker.network: proxy_proxy
+    networks:
+      - dbgpproxy
+      - proxy
+      - musiquesincongrues
+    volumes:
+      - type: bind
+        source: ../../src/musiquesincongrues
+        target: /mnt/app
+      - ./etc/apache.conf:/etc/apache2/sites-available/000-default.conf
+      - ./etc/php.apache.ini:/usr/local/etc/php/php.ini
+      - ~/.composer:/home/app/.composer
+      - ~/.ssh:/home/app/.ssh
+    working_dir: /mnt/app
+
+  musiquesincongrues_mysql_asaph:
+    environment:
+      MYSQL_DATABASE: asaph
+      MYSQL_ROOT_PASSWORD: root
+    image: mysql:5
+    networks:
+        - musiquesincongrues
+    volumes:
+      - ../../src/musiquesincongrues/data/sql/asaph.sql:/docker-entrypoint-initdb.d/asaph.sql
+
+  musiquesincongrues_mysql_vanilla:
+    environment:
+      MYSQL_DATABASE: vanilla
+      MYSQL_ROOT_PASSWORD: root
+    image: mysql:5
+    networks:
+        - musiquesincongrues
+        - proxy
+    volumes:
+      - ../../src/musiquesincongrues/data/sql/vanilla.sql:/docker-entrypoint-initdb.d/vanilla.sql

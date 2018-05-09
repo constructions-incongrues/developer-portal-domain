@@ -2,7 +2,7 @@
 
 ## Endpoints
 
-- Page d'accueil : [urlinfo.incongru.test](http://urlinfo.incongru.test)
+- Page d'accueil : [urlinfo.${DOMAIN}](http://urlinfo.${DOMAIN})
 
 ## Socle technique
 

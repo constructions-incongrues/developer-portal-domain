@@ -2,7 +2,7 @@
 
 ## Endpoints
 
-- Page d'accueil : [vanillaminer.incongru.test](http://vanillaminer.incongru.test)
+- Page d'accueil : [vanillaminer.${DOMAIN}](http://vanillaminer.${DOMAIN})
 
 ## Socle technique
 

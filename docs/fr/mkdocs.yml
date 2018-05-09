@@ -1,4 +1,4 @@
-site_name: "Developer Portal : incongru.test"
+site_name: "Developer Portal Domain : incongru.test"
 theme:
   name: 'material'
 markdown_extensions:
@@ -8,6 +8,6 @@ plugins:
   - awesome-pages
   - search
 repo_name: GitHub
-repo_url: 
+repo_url: https://github.com/constructions-incongrues/developer-portal-domain/
 edit_uri: edit/master/docs/fr/docs
 strict: true

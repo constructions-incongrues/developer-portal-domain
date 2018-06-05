@@ -13,7 +13,6 @@ services:
   daheardit_apache:
     build:
       context: ../../../${DP_DOMAIN}/src/daheardit
-      dockerfile: Dockerfile.apache
       args:
         PACKAGES_DEV: ${DP_PACKAGES_DEV-rsync vim} rsync ${PACKAGES_DEV-}
         GITHUB_OAUTH_TOKEN: ${GITHUB_OAUTH_TOKEN-""}
@@ -25,17 +24,17 @@ services:
       - "elasticsearch_53:${DP_DATASOURCES_IP-192.168.251.3}"
       - "mysql_main:${DP_DATASOURCES_IP-192.168.251.3}"
       - "mysql_sps:${DP_DATASOURCES_IP-192.168.251.3}"
-    image: registry.developer-portal.test/daheardit/php-5.6.36-apache-jessie:${DP_DOCKER_IMAGE_TAG-latest}
+    image: constructionsincongrues/daheardit-php-5.6.36-apache-jessie:${DP_DOCKER_IMAGE_TAG-latest}
     labels:
       com.aramisauto.developer-portal.default: "true"
       com.aramisauto.developer-portal.shell: /bin/bash
       com.aramisauto.developer-portal.logs: "" # https://github.com/ARAMISAUTO/developer-portal/blob/master/README.md#service-logs
       com.aramisauto.developer-portal.username: app
-      com.dnsdock.alias: daheardit.${DP_DOMAIN},apache.daheardit.${DP_DOMAIN}
+      com.dnsdock.alias: daheardit.${DP_DOMAIN}${DP_DOMAIN_SUFFIX},apache.daheardit.${DP_DOMAIN}${DP_DOMAIN_SUFFIX}
       com.dnsdock.ip_addr: "172.28.1.1"
       traefik.enable: "true"
       traefik.backend: daheardit_apache
-      traefik.frontend.rule: "Host:daheardit.${DP_DOMAIN},apache.daheardit.${DP_DOMAIN}"
+      traefik.frontend.rule: "Host:daheardit.${DP_DOMAIN}${DP_DOMAIN_SUFFIX},apache.daheardit.${DP_DOMAIN}${DP_DOMAIN_SUFFIX}"
       traefik.docker.network: proxy_proxy
     networks:
       - dbgpproxy
